@@ -1,0 +1,24 @@
+# Chef server settings
+chef_server:
+    host: 10.10.10.8
+    version: 12
+    user: myuser
+    key_file: myuser_chef.pem
+    key: null
+    organization: test
+# device42 settings
+device42:
+    host: myname.device42.com
+    user: myname
+    pass: mypassword
+
+# static options
+static:
+    customer: null
+    customer_id: null
+    service_level: null
+
+options:
+    # as_node_name: one of [fqdn, name]
+    as_node_name: fqdn
+    node_filter: []
