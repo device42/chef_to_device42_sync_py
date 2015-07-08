@@ -222,7 +222,9 @@ def main():
         logger.debug("Got %s nodes from chef" % len(chefnodes))
     else:
         with open(args.nodefile, 'r') as nf:
-            chefnodes = [json.loads(nf.read())]
+            chefnodes = json.loads(nf.read())
+        if isinstance(chefnodes, dict):
+            chefnodes = [chefnodes]
 
     if args.savenodes:
         with open(args.savenodes, 'w') as wnf:
