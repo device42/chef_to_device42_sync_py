@@ -32,6 +32,7 @@ parser.add_argument('-d', '--debug', action='store_true', help='Enable debug out
 parser.add_argument('-q', '--quiet', action='store_true', help='Quiet mode - outputs only errors')
 parser.add_argument('-c', '--config', help='Config file', default='settings.yaml')
 parser.add_argument('-f', '--nodefile', help='Get node info from JSON file instead of Chef server')
+parser.add_argument('-S', '--savenodes', help='Save nodes info from Chef server to json file')
 
 debugmode = False
 
@@ -189,6 +190,13 @@ def d42_update(dev42, nodes, options, static_opt):
             logger.exception("Error(%s) updating device %s" % (type(eee), node_name))
 
 
+class JSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, datetime):
+            return o.strftime("%Y %m %d %H:%M:%S")
+        return json.JSONEncoder.default(self, o)
+
+
 def main():
     global debugmode
     args = parser.parse_args()
@@ -215,6 +223,10 @@ def main():
     else:
         with open(args.nodefile, 'r') as nf:
             chefnodes = [json.loads(nf.read())]
+
+    if args.savenodes:
+        with open(args.savenodes, 'w') as wnf:
+            wnf.write(json.dumps(chefnodes, cls=JSONEncoder, indent=4, sort_keys=True, ensure_ascii=False))
 
     dev42 = device42.Device42(
         endpoint=config['device42']['host'],
