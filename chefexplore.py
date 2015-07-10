@@ -38,7 +38,7 @@ debugmode = False
 
 # We have to restrict FS to only known types to avoid incorrect disk size calculatons
 # add more yourself
-ALLOWED_FSTYPES = ['ntfs', 'ext2', 'ext3', 'ext4', 'ocfs2', 'xfs', 'zfs', 'jfs', 'vfat', 'reiser4', 'reiserfs']
+ALLOWED_FSTYPES = ['ntfs', 'ext2', 'ext3', 'ext4', 'ocfs2', 'xfs', 'zfs', 'jfs', 'vfat', 'msdos', 'reiser4', 'reiserfs']
 
 
 def get_config(cfgpath):
@@ -137,7 +137,7 @@ def d42_update(dev42, nodes, options, static_opt):
 
                 'memory': totalmem,
                 'cpucount': node['cpu']['total'],
-                'cpucore': node['cpu']['0']['cores'],
+                'cpucore': node['cpu']['0'].get('cores', 0),
                 'cpupower': int(float(node['cpu']['0']['mhz'])),
                 'hddcount': hddcount,
                 'hddsize': hddsize,
