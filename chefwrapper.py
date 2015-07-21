@@ -9,7 +9,8 @@ class ChefWrapper(object):
         and wraps calls of outdated 'pychef' library
     """
 
-    def __init__(self, host, user, key=None, key_file=None, version=None, organization=None, logger=None):
+    def __init__(self, host, user, key=None, key_file=None, version=None, organization=None,
+                 onlynodes=None, logger=None):
         self.host = host
         self.user = user
         self.key = key
@@ -23,6 +24,7 @@ class ChefWrapper(object):
         if self.version >= '12' and not organization:
             raise Exception("Parameter organization is required for Chef server version >= 12")
         self.logger = logger
+        self.onlynodes = onlynodes or []
 
     def get_nodes(self):
         if self.version >= "12":
@@ -36,5 +38,10 @@ class ChefWrapper(object):
         for nname, node in nodes.items():
             node_data = node.attributes.to_dict()
             if node_data:  # if not empty
+                if onlynodes:
+                    if not (node_data.get('hostname') in onlynodes or
+                            node_data.get('fqdn') in onlynodes or
+                            node_data.get('ipaddress') in onlynodes):
+                        continue
                 all_nodes.append(node_data)
         return all_nodes

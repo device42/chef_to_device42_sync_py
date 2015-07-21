@@ -33,12 +33,14 @@ parser.add_argument('-q', '--quiet', action='store_true', help='Quiet mode - out
 parser.add_argument('-c', '--config', help='Config file', default='settings.yaml')
 parser.add_argument('-f', '--nodefile', help='Get node info from JSON file instead of Chef server')
 parser.add_argument('-S', '--savenodes', help='Save nodes info from Chef server to json file')
+parser.add_argument('-n', '--onlynode', action='append', help='Process only selected nodes (fqdn or hostname)')
 
 debugmode = False
 
 # We have to restrict FS to only known types to avoid incorrect disk size calculatons
 # add more yourself
-ALLOWED_FSTYPES = ['ntfs', 'ext2', 'ext3', 'ext4', 'ocfs2', 'xfs', 'zfs', 'jfs', 'vfat', 'msdos', 'reiser4', 'reiserfs']
+ALLOWED_FSTYPES = ['ntfs', 'ext2', 'ext3', 'ext4', 'ocfs2', 'xfs', 'zfs', 'jfs',
+                   'vfat', 'msdos', 'reiser4', 'reiserfs']
 
 
 def get_config(cfgpath):
@@ -206,6 +208,9 @@ def main():
     if args.quiet:
         logger.setLevel(logging.ERROR)
         debugmode = False
+    onlynodes = []
+    if args.onlynode:
+        onlynodes = args.onlynode
 
     config = get_config(args.config)
 
@@ -217,14 +222,25 @@ def main():
             key_file=config['chef_server'].get('key_file'),
             version=config['chef_server'].get('version'),
             organization=config['chef_server'].get('organization'),
+            logger=logger,
+            onlynodes=onlynodes,
         )
         chefnodes = chef.get_nodes()
         logger.debug("Got %s nodes from chef" % len(chefnodes))
     else:
         with open(args.nodefile, 'r') as nf:
-            chefnodes = json.loads(nf.read())
-        if isinstance(chefnodes, dict):
-            chefnodes = [chefnodes]
+            allchefnodes = json.loads(nf.read())
+        if isinstance(allchefnodes, dict):
+            allchefnodes = [allchefnodes]
+        chefnodes = allchefnodes
+        if onlynodes:
+            chefnodes = []
+            for node in allchefnodes:
+                if not (node.get('hostname') in onlynodes or
+                        node.get('fqdn') in onlynodes or
+                        node.get('ipaddress') in onlynodes):
+                    continue
+                chefnodes.append(node)
 
     if args.savenodes:
         with open(args.savenodes, 'w') as wnf:
