@@ -38,10 +38,10 @@ class ChefWrapper(object):
         for nname, node in nodes.items():
             node_data = node.attributes.to_dict()
             if node_data:  # if not empty
-                if onlynodes:
-                    if not (node_data.get('hostname') in onlynodes or
-                            node_data.get('fqdn') in onlynodes or
-                            node_data.get('ipaddress') in onlynodes):
+                if self.onlynodes:
+                    if not (node_data.get('hostname') in self.onlynodes or
+                            node_data.get('fqdn') in self.onlynodes or
+                            node_data.get('ipaddress') in self.onlynodes):
                         continue
                 all_nodes.append(node_data)
         return all_nodes
