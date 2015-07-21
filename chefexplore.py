@@ -54,7 +54,7 @@ def get_config(cfgpath):
     return config
 
 
-def d42_update(dev42, nodes, options, static_opt):
+def d42_update(dev42, nodes, options, static_opt, chefhost=None):
 
     # get customer info
     customer_name = static_opt.get('customer')
@@ -152,6 +152,15 @@ def d42_update(dev42, nodes, options, static_opt):
             updateinfo = dev42.update_device(**data)
             deviceid = updateinfo['msg'][1]
             logger.info("Device %s updated/created (id %s)" % (node_name, deviceid))
+
+            if chefhost:
+                cfdata = {
+                    'name': node_name,
+                    'key': 'Chef Node ID',
+                    'value': node_name,
+                    'notes': 'Chef Server %s' % chefhost
+                }
+                updateinfo = dev42._put('device/custom_field', cfdata)
 
             # Dealing with IPs
             device_ips = dev42._get("ips", data={'device': node_name})['ips']
@@ -251,9 +260,9 @@ def main():
         user=config['device42']['user'],
         password=config['device42']['pass'],
         logger=logger,
-        debug=debugmode
+        debug=debugmode,
     )
-    d42_update(dev42, chefnodes, config['options'], config.get('static', {}))
+    d42_update(dev42, chefnodes, config['options'], config.get('static', {}), config['chef_server']['host'])
 
     return 0
 
