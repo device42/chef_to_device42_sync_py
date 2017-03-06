@@ -19,7 +19,7 @@ ch.setFormatter(logging.Formatter('%(asctime)-15s\t%(levelname)s\t %(message)s')
 logger.addHandler(ch)
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
 
-parser = argparse.ArgumentParser(description="chefexplore", epilog=DESCRIPTION)
+parser = argparse.ArgumentParser(description="chefexplore")
 
 parser.add_argument('-d', '--debug', action='store_true', help='Enable debug output')
 parser.add_argument('-q', '--quiet', action='store_true', help='Quiet mode - outputs only errors')
