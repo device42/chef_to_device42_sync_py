@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
 
-DESCRIPTION = """
-    Script file chefexplore
-
-    Author: Alexey Kolyanov, 2015
-
-"""
-
 import os
 import sys
 import yaml
@@ -148,6 +141,10 @@ def d42_update(dev42, nodes, options, static_opt, chefhost=None):
                 'customer': customer_name,
                 'service_level': static_opt.get('service_level'),
             }
+
+            if options.get('hostname_precedence'):
+                data.update({'new_name': node_name})
+
             logger.debug("Updating node %s" % node_name)
             updateinfo = dev42.update_device(**data)
             deviceid = updateinfo['msg'][1]
