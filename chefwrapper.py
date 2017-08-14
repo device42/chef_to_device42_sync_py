@@ -33,7 +33,7 @@ class ChefWrapper(object):
             chef_url = "https://%s" % self.host
         # print(chef_url)
         all_nodes = []
-        with chef.ChefAPI(chef_url, self.key, self.user):
+        with chef.ChefAPI(chef_url, self.key, self.user, ssl_verify=False):
             nodes = chef.Node.list()
         for nname, node in nodes.items():
             node_data = node.attributes.to_dict()
