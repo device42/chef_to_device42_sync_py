@@ -110,21 +110,17 @@ def d42_update(dev42, nodes, options, static_opt, chefhost=None):
                 hddsize += size
             hddsize = hddsize >> 30  # convert to Gb ( hddsize/ 1024**3 )
 
-            nodetype = None
             is_virtual = 'no'
             virtual_subtype = None
             if node.get('virtualization'):
                 # node['virtualization']['system']
                 is_virtual = 'yes'
-                nodetype = 'virtual'
             if node.get('kernel', {}).get('os_info', {}).get('registered_user') == 'EC2':
                 is_virtual = 'yes'
                 virtual_subtype = 'ec2'
-                nodetype = 'virtual'
 
             data = {
                 'name': node_name,
-                'type': nodetype,
                 'is_it_virtual_host': is_virtual,
                 'virtual_subtype': virtual_subtype,
                 'os': node['platform'],
