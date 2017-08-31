@@ -65,6 +65,7 @@ def d42_update(dev42, nodes, options, static_opt, chefhost=None):
 
     # processing all nodes
     for node in nodes:
+
         if 'hostname' not in node:
             logger.debug("Skip node: no name found")
             continue
@@ -180,9 +181,12 @@ def d42_update(dev42, nodes, options, static_opt, chefhost=None):
                         'macaddress': macaddr,
                     }
                     # logger.debug("IP data: %s" % ipdata)
-                    updateinfo = dev42._post('ips', ipdata)
-                    updated_ips.append(updateinfo['msg'][1])
-                    logger.info("IP %s for device %s updated/created (id %s)" % (nodeip, node_name, deviceid))
+                    try:
+                        updateinfo = dev42._post('ips', ipdata)
+                        updated_ips.append(updateinfo['msg'][1])
+                        logger.info("IP %s for device %s updated/created (id %s)" % (nodeip, node_name, deviceid))
+                    except device42.Device42HTTPError as e:
+                        print e
 
             # Delete other IPs from the device
             for d_ip in device_ips:
@@ -227,6 +231,7 @@ def main():
             logger=logger,
             onlynodes=onlynodes,
         )
+
         chefnodes = chef.get_nodes()
         logger.debug("Got %s nodes from chef" % len(chefnodes))
     else:
