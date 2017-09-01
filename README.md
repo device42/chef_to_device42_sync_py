@@ -20,6 +20,15 @@ You should obtain client name and its key file to be able to connect to Chef ser
 See [NodeFilter.md](./NodeFilter.md) for node filtering options.
 
 
+# Custom Fields Mapping
+
+You may send any variable from nodes. Just define `mapping` section in `settings.yaml` ( we have commented example ). 
+
+If variable are tuple, list or dict we send length of the particular object. 
+
+If you want to see all possible node values, please use `show_node` parameter in `settings.yaml` `options` section.
+
+
 # Run
 
 ```
