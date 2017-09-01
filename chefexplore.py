@@ -69,6 +69,10 @@ def d42_update(dev42, nodes, options, static_opt, mapping, chefhost=None):
         if 'hostname' not in node:
             logger.debug("Skip node: no name found")
             continue
+
+        if options.get('show_node'):
+            print node
+
         node_name = node['hostname']
         if options.get('as_node_name').upper() == 'FQDN':
             node_name = node.get('fqdn', node_name)
