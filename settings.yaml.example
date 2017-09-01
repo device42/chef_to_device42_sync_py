@@ -6,11 +6,20 @@ chef_server:
     key_file: myuser_chef.pem
     key: null
     organization: test
+
 # device42 settings
 device42:
     host: myname.device42.com
     user: myname
     pass: mypassword
+
+# custom fields mapping
+# mapping:
+#    # chef field / device42 field
+#    memory:
+#        vmalloc_used: test_field
+#    platform: test_field2
+#    filesystem: test_field3
 
 # static options
 static:

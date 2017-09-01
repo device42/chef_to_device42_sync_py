@@ -47,7 +47,7 @@ def get_config(cfgpath):
     return config
 
 
-def d42_update(dev42, nodes, options, static_opt, chefhost=None):
+def d42_update(dev42, nodes, options, static_opt, mapping, chefhost=None):
 
     # get customer info
     customer_name = static_opt.get('customer')
@@ -111,18 +111,15 @@ def d42_update(dev42, nodes, options, static_opt, chefhost=None):
                 hddsize += size
             hddsize = hddsize >> 30  # convert to Gb ( hddsize/ 1024**3 )
 
-            is_virtual = 'no'
             virtual_subtype = None
             if node.get('virtualization'):
                 # node['virtualization']['system']
-                is_virtual = 'yes'
+                pass
             if node.get('kernel', {}).get('os_info', {}).get('registered_user') == 'EC2':
-                is_virtual = 'yes'
                 virtual_subtype = 'ec2'
 
             data = {
                 'name': node_name,
-                'is_it_virtual_host': is_virtual,
                 'virtual_subtype': virtual_subtype,
                 'os': node['platform'],
                 'osver': node['platform_version'],
@@ -155,6 +152,44 @@ def d42_update(dev42, nodes, options, static_opt, chefhost=None):
                     'notes': 'Chef Server %s' % chefhost
                 }
                 updateinfo = dev42._put('device/custom_field', cfdata)
+
+            global depth
+            depth = []
+            res = []
+            def get_depth(obj):
+                global depth
+                for item in obj:
+                    depth.append(item)
+                    if type(obj[item]) == str:
+                      res.append({obj[item]: depth})
+                      depth = []
+                    else:
+                      get_depth(obj[item])
+                return res
+                    
+            full_depth = get_depth(mapping)
+            for element in full_depth:
+                for key in element:
+                    value = None
+                    step = node
+
+                    try:
+                        for x in element[key]:
+                            step = step[x]
+                    except KeyError:
+                        continue
+
+                    if type(step) in [unicode, str, int]:
+                        value = step
+                    elif type(step) in [list, tuple, dict]:
+                        value = len(step)
+
+                    cfdata = {
+                        'name': node_name,
+                        'key': key,
+                        'value': value
+                    }
+                    updateinfo = dev42._put('device/custom_field', cfdata)
 
             # Dealing with IPs
             device_ips = dev42._get("ips", data={'device': node_name})['ips']
@@ -260,7 +295,7 @@ def main():
         logger=logger,
         debug=debugmode,
     )
-    d42_update(dev42, chefnodes, config['options'], config.get('static', {}), config['chef_server']['host'])
+    d42_update(dev42, chefnodes, config['options'], config.get('static', {}), config.get('mapping', {}), config['chef_server']['host'])
 
     return 0
 
